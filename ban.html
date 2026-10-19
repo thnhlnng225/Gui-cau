@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#240812">
+<title>A Rose for You — 20/10</title>
+<style>
+:root{
+  --wine:#240812;--wine2:#451021;--wine3:#6b1830;
+  --gold:#e6c786;--gold2:#b78b48;--cream:#fff1d9;
+  --paper:#f4e7d0;--ink:#512c30;--pink:#e7a0ae;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;overflow:hidden;color:var(--cream);
+  background:radial-gradient(ellipse at 50% 40%,#52172b 0%,#260b17 42%,#090509 100%);
+  font-family:Georgia,"Times New Roman",serif;
+}
+button{font:inherit}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+#ambient,#particles,#petals,#fireworks{
+  position:fixed;inset:0;pointer-events:none;overflow:hidden;
+}
+#ambient{z-index:0;opacity:.3;background:
+  radial-gradient(circle at 18% 25%,#d5a45522 0 1px,transparent 2px),
+  radial-gradient(circle at 75% 65%,#e6c78622 0 1px,transparent 2px);
+  background-size:73px 91px,101px 83px}
+#particles{z-index:3}
+#petals{z-index:5}
+#fireworks{z-index:8}
+.vignette{position:fixed;inset:0;z-index:10;pointer-events:none;
+  box-shadow:inset 0 0 110px 25px #000b}
+.topline{position:fixed;z-index:20;top:0;left:0;width:100%;height:3px;
+  background:#ffffff0b}
+.topline span{display:block;height:100%;width:0;background:var(--gold);transition:width .8s}
+.sound{
+  position:fixed;right:18px;top:18px;z-index:30;border:1px solid #e6c78688;
+  border-radius:999px;padding:10px 14px;background:#1a0712d9;color:var(--gold);
+  letter-spacing:1px;font:10px Arial,sans-serif;cursor:pointer;backdrop-filter:blur(8px)
+}
+.sound.mood{right:auto;left:18px}
+.sound:hover,.btn:hover{background:var(--gold);color:var(--wine);transform:translateY(-2px)}
+.scene{
+  position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
+  padding:72px 22px 55px;text-align:center;overflow-y:auto;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity 1.1s ease,visibility 1.1s;
+}
+.scene.active{opacity:1;visibility:visible;pointer-events:auto}
+.frame{
+  width:min(760px,100%);position:relative;padding:clamp(22px,5vw,54px) clamp(14px,4vw,44px);
+}
+.frame:before{content:"";position:absolute;inset:4px;border:1px solid #d8b36a66;pointer-events:none}
+.frame:after{content:"✦";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  color:var(--gold);background:#260b17;padding:0 12px;font-size:15px}
+.eyebrow{font:10px/1.6 Arial,sans-serif;letter-spacing:5px;text-transform:uppercase;color:var(--gold)}
+h1,h2,p{margin-top:0}
+h1{font-size:clamp(37px,8vw,78px);font-weight:normal;line-height:1.08;
+  color:var(--gold);text-shadow:0 0 35px #d7a75325;margin:22px 0}
+h2{font-size:clamp(27px,5vw,42px);font-weight:normal;line-height:1.2;color:var(--gold)}
+p{font-size:clamp(16px,2.5vw,20px);line-height:1.85;color:#f4e5d7}
+.muted{font-size:11px;letter-spacing:2px;color:#c8aeb0;font-family:Arial,sans-serif}
+.gold-rule{width:70px;height:1px;background:var(--gold);margin:24px auto}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:45px;margin:9px 5px 0;padding:13px 21px;border:1px solid var(--gold);
+  background:#20081377;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;
+  font:10px Arial,sans-serif;cursor:pointer;transition:all .3s
+}
+.btn.primary{background:var(--gold);color:#2a0b16}
+.btn.primary:hover{background:#fff0c9}
+.btn:disabled{opacity:.45;cursor:default}
+.intro-title,.reveal{animation:rise 1.4s both}
+.delay1{animation-delay:.3s}.delay2{animation-delay:.8s}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 8px #e6c78644)}50%{filter:drop-shadow(0 0 24px #e6c786aa)}}
+.seal-wrap{position:relative;width:156px;height:156px;margin:30px auto 20px;display:grid;place-items:center}
+.seal-ring{position:absolute;inset:0;border:1px solid #e6c78677;border-radius:50%;
+  animation:spin 18s linear infinite}
+.seal-ring:before,.seal-ring:after{content:"✦";position:absolute;color:var(--gold);font-size:12px}
+.seal-ring:before{top:-7px;left:calc(50% - 6px)}.seal-ring:after{bottom:-7px;left:calc(50% - 6px)}
+.seal{
+  width:105px;height:105px;border-radius:50%;border:1px solid #f5dca0;
+  background:radial-gradient(circle at 30% 25%,#a83d56,#6c132c 60%,#350918);
+  box-shadow:0 0 0 6px #a8783b20,0 0 35px #d6a4532a;
+  color:#f4d89b;font-size:43px;cursor:pointer;animation:glow 3s infinite;
+  transition:transform .6s,opacity .6s;display:grid;place-items:center
+}
+.seal:hover{transform:scale(1.08) rotate(-5deg)}
+.seal.broken{transform:scale(1.7) rotate(25deg);opacity:0;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.envelope-stage{perspective:1000px;width:min(370px,85vw);height:250px;margin:20px auto 28px;position:relative}
+.envelope{
+  position:absolute;inset:35px 0 0;height:190px;cursor:pointer;
+  filter:drop-shadow(0 20px 22px #0006);transition:transform .7s
+}
+.env-back{position:absolute;inset:0;background:#d8b77e;border:1px solid #f5dfac}
+.env-front{position:absolute;inset:0;background:linear-gradient(145deg,#f1dfbd,#c9a36b);
+  clip-path:polygon(0 0,50% 57%,100% 0,100% 100%,0 100%)}
+.env-side{position:absolute;inset:0;background:linear-gradient(35deg,#b98d55,#f2dfb7);
+  clip-path:polygon(0 0,50% 57%,0 100%)}
+.env-side.right{clip-path:polygon(100% 0,50% 57%,100% 100%);background:linear-gradient(320deg,#a97943,#ead3a7)}
+.env-flap{
+  position:absolute;inset:0;background:linear-gradient(145deg,#f7e7c8,#d0ad75);
+  clip-path:polygon(0 0,100% 0,50% 62%);transform-origin:top center;
+  transition:transform .9s ease;z-index:4;backface-visibility:hidden
+}
+.wax{position:absolute;z-index:5;top:65px;left:calc(50% - 24px);width:48px;height:48px;
+  border-radius:50%;display:grid;place-items:center;color:#f4d89b;
+  background:radial-gradient(circle at 30% 25%,#a83b52,#681329 70%);
+  border:1px solid #edc879;box-shadow:0 3px 9px #53202a88;transition:opacity .3s}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:0}
+.envelope.open .wax{opacity:0}
+.envelope.open{transform:translateY(10px)}
+.letter-card{
+  width:min(600px,100%);max-height:min(65vh,620px);overflow:auto;
+  background:linear-gradient(135deg,#fff3dc,#ead4ae);color:var(--ink);
+  text-align:left;padding:clamp(23px,5vw,46px);border:1px solid #d6b16c;
+  box-shadow:0 25px 90px #0008;position:relative;
+  opacity:0;transform:translateY(28px) scale(.96);transition:opacity .8s,transform .8s;
+  scrollbar-color:#bd985d #f4e7d0
+}
+.letter-card.visible{opacity:1;transform:none}
+.letter-card:before{content:"";position:absolute;inset:9px;border:1px solid #b48b5055;pointer-events:none}
+.letter-card h2{text-align:center;color:#7e233b;margin-bottom:8px}
+.letter-card p{color:#56383a;font-size:16px;line-height:1.85;position:relative}
+.letter-card .sign{text-align:right;font-style:italic;color:#852a43}
+.heart-button{
+  border:0;background:transparent;color:#e6a1ae;font-size:74px;cursor:pointer;
+  line-height:1;filter:drop-shadow(0 0 12px #ed9bad44);transition:transform .2s
+}
+.heart-button:hover{transform:scale(1.12)}
+.heart-button.pulse{animation:heartPulse .65s ease}
+@keyframes heartPulse{0%{transform:scale(1)}35%{transform:scale(1.35)}65%{transform:scale(.9)}100%{transform:scale(1)}}
+.hidden-note{max-height:0;overflow:hidden;opacity:0;transition:all 1s;max-width:540px;margin:auto}
+.hidden-note.show{max-height:260px;opacity:1;margin-top:18px}
+.rose{font-size:clamp(75px,15vw,130px);filter:drop-shadow(0 0 28px #d79b5733);animation:bloom 3s ease-in-out infinite alternate}
+@keyframes bloom{to{transform:scale(1.08) rotate(3deg)}}
+.flower-button{background:transparent;border:0;font-size:34px;cursor:pointer;transition:transform .3s;filter:drop-shadow(0 0 8px #e6c78644)}
+.flower-button:hover{transform:scale(1.3) rotate(12deg)}
+.flower-row{display:flex;justify-content:center;gap:13px;margin:16px 0}
+.footer{position:fixed;z-index:20;bottom:15px;left:0;width:100%;text-align:center;
+  color:#bfa7a5;font:9px Arial,sans-serif;letter-spacing:3px;pointer-events:none}
+.float-petal{position:absolute;top:-35px;will-change:transform;animation:fall linear forwards;user-select:none}
+@keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--rot));opacity:.05}}
+.spark{position:absolute;width:3px;height:3px;border-radius:50%;background:#ffe8ad;
+  box-shadow:0 0 10px 3px #e6c78677;animation:spark 2.8s ease-in-out infinite alternate}
+@keyframes spark{from{opacity:.12;transform:scale(.5)}to{opacity:1;transform:scale(1.6)}}
+.burst-particle{position:absolute;left:var(--x);top:var(--y);font-size:var(--size);
+  color:var(--color);animation:burst 1.5s ease-out forwards;pointer-events:none}
+@keyframes burst{from{transform:translate(0,0) scale(.4) rotate(0);opacity:1}
+to{transform:translate(var(--tx),var(--ty)) scale(1.1) rotate(var(--rot));opacity:0}}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+@media(max-width:520px){
+ .scene{padding:65px 13px 52px}
+ .frame{padding:26px 13px}
+ .frame:before{inset:2px}
+ .eyebrow{letter-spacing:3px;font-size:9px}
+ .sound{top:11px;right:11px;padding:9px 11px}
+ .sound.mood{left:11px;right:auto}
+ .envelope-stage{height:225px}
+ .envelope{top:28px;height:175px}
+ .env-flap{height:175px}
+ .letter-card{max-height:58vh;padding:25px 22px}
+ .letter-card p{font-size:15px}
+ .footer{letter-spacing:1.5px;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div id="ambient"></div>
+<div id="particles"></div>
+<div id="petals"></div>
+<div id="fireworks"><canvas id="canvas"></canvas></div>
+<div class="topline"><span id="progress"></span></div>
+<!-- ĐIỀU KHIỂN ÂM THANH: nút bật/tắt nhạc nền và đổi giai điệu nằm ở đây. -->
+<button class="sound" id="soundBtn" type="button">♫ BẬT NHẠC</button>
+<button class="sound mood" id="moodBtn" type="button" aria-label="Đổi giai điệu nền">♪ PIANO</button>
+<div class="footer">A ROSE FOR YOU · 20 OCTOBER</div>
+<div class="vignette"></div>
+
+<!-- Cảnh 1: Con dấu -->
+<section class="scene active" id="scene0">
+  <div class="frame">
+    <div class="eyebrow reveal">A little gift, made with love</div>
+    <h1 class="intro-title">A Rose<br><span style="font-style:italic">for You</span></h1>
+    <div class="gold-rule"></div>
+    <p class="reveal delay1">Có một món quà nhỏ,<br>và một điều mình muốn nói với cậu.</p>
+    <div class="seal-wrap">
+      <div class="seal-ring"></div>
+      <button class="seal" id="sealBtn" aria-label="Mở món quà">♥</button>
+    </div>
+    <div class="muted">CHẠM VÀO TRÁI TIM ĐỂ MỞ QUÀ</div>
+    <div class="muted" style="margin-top:8px;opacity:.7">♫ NÊN BẬT ÂM THANH ĐỂ TRẢI NGHIỆM TRỌN VẸN</div>
+  </div>
+</section>
+
+<!-- Cảnh 2: Phong thư -->
+<section class="scene" id="scene1">
+  <div class="frame">
+    <div class="eyebrow">Chapter I · Just for you</div>
+    <h2>Một lá thư nhỏ</h2>
+    <p>Mình đã cất vào đây vài lời nhắn,<br>mong chúng có thể làm cậu mỉm cười.</p>
+    <div class="envelope-stage">
+      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Mở phong thư">
+        <div class="env-back"></div>
+        <div class="env-side"></div><div class="env-side right"></div>
+        <div class="env-front"></div>
+        <div class="env-flap"></div>
+        <div class="wax">♥</div>
+      </div>
+    </div>
+    <button class="btn primary" id="openEnvelopeBtn">Mở phong thư ♥</button>
+    <div class="muted" style="margin-top:14px">MỘT ĐIỀU DÀNH RIÊNG CHO cậu</div>
+  </div>
+</section>
+
+<!-- Cảnh 3: Lá thư -->
+<section class="scene" id="scene2">
+  <div class="frame">
+    <div class="eyebrow">Chapter II · A heartfelt note</div>
+    <div class="letter-card" id="letterCard">
+      <h2>Gửi người đặc biệt của mình,</h2>
+      <div class="gold-rule"></div>
+      <p>Nhân ngày 20/10, mình muốn chúc cậu luôn vui vẻ, bình an và được yêu thương theo cách mà cậu xứng đáng.</p>
+      <p>Mong cậu luôn giữ được nụ cười rạng rỡ ấy, đủ dũng khí để theo đuổi những điều mình mong muốn và có thật nhiều ngày mà khi thức dậy, cậu cảm thấy cuộc sống này thật đáng yêu.</p>
+      <p>Nếu đôi lúc cảm thấy mệt mỏi, mong cậu nhớ rằng mình không cần phải mạnh mẽ mọi lúc. Cậu có thể nghỉ ngơi, có thể yếu lòng, cũng có thể chậm lại một chút. Dù thế nào, cậu vẫn xứng đáng được quan tâm và trân trọng.</p>
+      <p>Nhân dịp này, mình cũng muốn gửi đến cậu một lời xin lỗi chân thành. Vài hôm trước, mình đã đột ngột chặn liên lạc với cậu thay vì bình tĩnh nói rõ những điều trong lòng. Mình xin lỗi vì đã hành xử thiếu chín chắn và có thể khiến cậu tức giận và khó hiểu. Đáng lẽ mình nên lựa chọn cách nói chuyện thẳng thắn hơn.</p>
+      <p>Nếu cậu vẫn sẵn lòng, mình mong chúng ta có thể trò chuyện lại, bắt đầu từ những điều giản dị và để mọi thứ diễn ra thật tự nhiên. Mình sẽ cố gắng trưởng thành hơn, biết lắng nghe và suy nghĩ thấu đáo hơn trước khi đưa ra quyết định. Cậu không cần phải trả lời ngay, cũng không cần miễn cưỡng làm điều gì cả. Mình tôn trọng cảm xúc và lựa chọn của cậu.</p>
+      <p>✨ <b>Nếu cậu muốn cho chúng ta một cơ hội trò chuyện lại, hãy gửi cho mình biểu tượng 😊 nhé.</b></p>
+      <p>🥀 <b>Còn nếu cậu không muốn tiếp tục, cậu có thể gửi biểu tượng 🤫.</b> Mình sẽ hiểu và tôn trọng quyết định ấy.</p>
+      <p>Dù câu trả lời của cậu là gì, mình vẫn mong cậu có một ngày 20/10 thật vui vẻ, luôn được yêu thương và gặp nhiều điều tốt đẹp. ❤️</p>
+      <p class="sign">Thương mến,<br>một người luôn muốn thấy cậu mỉm cười ♥</p>
+    </div>
+    <div style="margin-top:19px">
+      <button class="btn" id="heartBtn">♥ Chạm vào trái tim</button>
+      <button class="btn primary" id="toFinalBtn">Món quà cuối cùng →</button>
+    </div>
+    <div class="hidden-note" id="hiddenNote">
+      <p style="color:var(--gold);font-style:italic">“Trong rất nhiều điều đẹp đẽ của thế giới này, mình vui vì có cơ hội được làm quen với cậu.”</p>
+    </div>
+  </div>
+</section>
+
+<!-- Cảnh 4: Kết -->
+<section class="scene" id="scene3">
+  <div class="frame">
+    <div class="eyebrow">Chapter III · For my favorite person</div>
+    <div class="rose">🌹</div>
+    <h1 style="font-size:clamp(34px,7vw,65px)">Happy<br>Women's Day</h1>
+    <div class="gold-rule"></div>
+    <p>Chúc cậu luôn rực rỡ như hoa,<br>ấm áp như nắng và hạnh phúc theo cách riêng của mình.</p>
+    <div class="flower-row" aria-label="Nhấn vào hoa để tạo hiệu ứng">
+      <button class="flower-button" aria-label="Hoa hồng" data-flower>🌹</button>
+      <button class="flower-button" aria-label="Hoa tulip" data-flower>🌷</button>
+      <button class="flower-button" aria-label="Hoa anh đào" data-flower>🌸</button>
+      <button class="flower-button" aria-label="Trái tim" data-flower>💗</button>
+      <button class="flower-button" aria-label="Hoa hồng" data-flower>🌹</button>
+    </div>
+    <div class="muted">20 · 10 · DÀNH RIÊNG CHO cậu</div>
+    <button class="btn primary" id="fireworkBtn">Thắp sáng bầu trời ✦</button>
+    <button class="btn" id="replayBtn">↺ Xem lại từ đầu</button>
+  </div>
+</section>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const scenes = [...document.querySelectorAll(".scene")];
+  let current = 0;
+  let petalTimer = null, sparkTimer = null, fireworksRunning = false;
+  const progress = $("progress");
+
+  function goTo(n) {
+    scenes[current].classList.remove("active");
+    current = n;
+    scenes[current].classList.add("active");
+    progress.style.width = (current / (scenes.length - 1) * 100) + "%";
+    if (current > 0) { startPetals(); startSparks(); }
+    // Khi đến cảnh cuối, tự động thắp sáng bầu trời bằng một chuỗi pháo hoa.
+    if (current === 3) {
+      launchFireworks(8);
+      setTimeout(() => {
+        if (current === 3) launchFireworks(5);
+      }, 3200);
+    }
+  }
+
+  function burstAt(x, y, count = 28, symbols = ["✦","♥","✧","❀"]) {
+    const layer = $("particles");
+    for (let i=0; i<count; i++) {
+      const el = document.createElement("span");
+      el.className = "burst-particle";
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 45 + Math.random() * Math.min(innerWidth, innerHeight) * .27;
+      el.style.setProperty("--x", x + "px");
+      el.style.setProperty("--y", y + "px");
+      el.style.setProperty("--tx", Math.cos(angle) * distance + "px");
+      el.style.setProperty("--ty", Math.sin(angle) * distance + "px");
+      el.style.setProperty("--rot", (Math.random()*500-250) + "deg");
+      el.style.setProperty("--size", (12+Math.random()*20) + "px");
+      el.style.setProperty("--color", ["#ffe7a5","#f1c5cd","#dca5ae","#fff1d9"][i%4]);
+      el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+      layer.appendChild(el);
+      setTimeout(() => el.remove(), 1700);
+    }
+  }
+
+  $("sealBtn").addEventListener("click", e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    burstAt(r.left+r.width/2, r.top+r.height/2, 45, ["♥","✦","✧"]);
+    e.currentTarget.classList.add("broken");
+    setTimeout(() => goTo(1), 650);
+    autoSound();
+    sfx.seal();
+  });
+
+  const envelope = $("envelope");
+  function openEnvelope() {
+    // Mở phong thư và tự động chuyển sang nội dung lá thư sau hiệu ứng.
+    if (envelope.dataset.opening === "true") return;
+    envelope.dataset.opening = "true";
+    envelope.classList.add("open");
+    sfx.paper();
+    const r = envelope.getBoundingClientRect();
+    burstAt(r.left+r.width/2, r.top+r.height*.45, 38, ["✦","♥","✧","❀"]);
+    $("openEnvelopeBtn").textContent = "Đang mở thư…";
+    $("openEnvelopeBtn").disabled = true;
+
+    // Người nhận chỉ cần click một lần; lá thư sẽ hiện ra để đọc ngay.
+    setTimeout(() => {
+      goTo(2);
+      requestAnimationFrame(() => {
+        $("letterCard").classList.add("visible");
+        $("letterCard").scrollTop = 0;
+      });
+      $("openEnvelopeBtn").textContent = "Mở phong thư ♥";
+      $("openEnvelopeBtn").disabled = false;
+    }, 850);
+  }
+  $("openEnvelopeBtn").addEventListener("click", openEnvelope);
+  envelope.addEventListener("click", openEnvelope);
+  envelope.addEventListener("keydown", e => {
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();openEnvelope();}
+  });
+
+  $("heartBtn").addEventListener("click", e => {
+    const btn = e.currentTarget;
+    btn.classList.remove("pulse");
+    void btn.offsetWidth;
+    btn.classList.add("pulse");
+    sfx.heart();
+    const r = btn.getBoundingClientRect();
+    burstAt(r.left+r.width/2, r.top+r.height/2, 55, ["♥","♡","✦","✧"]);
+    $("hiddenNote").classList.toggle("show");
+    btn.textContent = $("hiddenNote").classList.contains("show")
+      ? "♥ Một lời nhắn bí mật đã mở" : "♥ Chạm vào trái tim";
+  });
+  $("toFinalBtn").addEventListener("click", () => goTo(3));
+  $("replayBtn").addEventListener("click", reset);
+  $("fireworkBtn").addEventListener("click", () => {
+    launchFireworks(5);
+    const r = $("fireworkBtn").getBoundingClientRect();
+    burstAt(r.left+r.width/2, r.top+r.height/2, 55, ["✦","✧","♥","❀"]);
+  });
+  document.querySelectorAll("[data-flower]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const r = btn.getBoundingClientRect();
+      burstAt(r.left+r.width/2, r.top+r.height/2, 34, [btn.textContent,"✦","♥","✧"]);
+      sfx.tink();
+    });
+  });
+
+  function reset() {
+    $("sealBtn").classList.remove("broken");
+    envelope.classList.remove("open");
+    delete envelope.dataset.opening;
+    $("openEnvelopeBtn").textContent = "Mở phong thư ♥";
+    $("openEnvelopeBtn").disabled = false;
+    $("letterCard").classList.remove("visible");
+    $("hiddenNote").classList.remove("show");
+    $("heartBtn").textContent = "♥ Chạm vào trái tim";
+    goTo(0);
+  }
+
+  function startPetals() {
+    if (petalTimer) return;
+    petalTimer = setInterval(() => {
+      if (current === 0) return;
+      const el = document.createElement("span");
+      el.className = "float-petal";
+      el.textContent = ["❀","✿","🌸","♥"][Math.floor(Math.random()*4)];
+      el.style.left = Math.random()*100 + "vw";
+      el.style.fontSize = (12+Math.random()*19) + "px";
+      el.style.color = ["#e8b5bb","#d6a35c","#f0d7b0","#d97b91"][Math.floor(Math.random()*4)];
+      el.style.opacity = (.35+Math.random()*.55).toString();
+      el.style.setProperty("--dx", (Math.random()*200-100)+"px");
+      el.style.setProperty("--rot", (Math.random()*1000-500)+"deg");
+      const duration = 7+Math.random()*8;
+      el.style.animationDuration = duration+"s";
+      $("petals").appendChild(el);
+      setTimeout(()=>el.remove(), duration*1000+200);
+    }, 450);
+  }
+
+  function startSparks() {
+    if (sparkTimer) return;
+    sparkTimer = setInterval(() => {
+      if (current === 0 || Math.random() > .6) return;
+      const el = document.createElement("i");
+      el.className = "spark";
+      el.style.left = Math.random()*100+"%";
+      el.style.top = Math.random()*100+"%";
+      el.style.animationDelay = Math.random()*2+"s";
+      $("particles").appendChild(el);
+      setTimeout(()=>el.remove(), 5000);
+    }, 500);
+  }
+
+  // =====================================================================
+  //  AUDIO ENGINE — nhạc nền tổng hợp bằng Web Audio API + hiệu ứng SFX
+  //  Không cần file âm thanh nào. Muốn dùng nhạc có sẵn thì điền vào
+  //  CUSTOM_TRACKS bên dưới (đặt file mp3/ogg cạnh file HTML).
+  //  Ví dụ: { name: "Nhạc của tôi", src: "nhac-cua-toi.mp3" }
+  //  Sau đó dùng nút ♪ để chuyển sang bài nhạc đã thêm.
+  // =====================================================================
+  const CUSTOM_TRACKS = [
+    // THAY BẰNG FILE CỦA BẠN: bỏ //, sửa tên và đường dẫn file.
+    // { name: "Nhạc của tôi", src: "nhac-cua-toi.mp3" },
+    // Nếu để trong thư mục music cạnh HTML: src: "music/nhac-cua-toi.mp3"
+  ];
+  const AUTO_SOUND_ON_FIRST_TAP = true;   // tự bật nhạc khi người nhận chạm vào con dấu
+  const MASTER_VOL = 0.8; // âm lượng tổng, từ 0 (im lặng) đến 1 (to nhất)
+  const FILE_VOL = 0.6;   // âm lượng riêng của file nhạc trong CUSTOM_TRACKS
+
+  const MOODS = [
+    { id: "piano", name: "PIANO",       eighth: 0.46 },
+    { id: "box",   name: "HỘP NHẠC",    eighth: 0.42 },
+    { id: "lofi",  name: "LOFI GUITAR", eighth: 0.50 },
+    ...CUSTOM_TRACKS.map(t => ({ id: "file", name: t.name.toUpperCase(), src: t.src }))
+  ];
+
+  const soundBtn = $("soundBtn"), moodBtn = $("moodBtn");
+  let ac = null, master, musicBus, sfxBus, reverbSend, noiseBuf, crackleBuf;
+  let soundOn = false, userChose = false, moodIdx = 0;
+  let schedTimer = null, nextTime = 0, step = 0, crackleSrc = null, fileEl = null;
+
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  // ---------- Khởi tạo đồ thị âm thanh ----------
+  function makeIR(sec, decay) {
+    const len = Math.floor(ac.sampleRate * sec), buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+  }
+  function makeNoise(sec) {
+    const len = Math.floor(ac.sampleRate * sec), buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+  function makeCrackle(sec) {
+    const len = Math.floor(ac.sampleRate * sec), buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++)
+      d[i] = (Math.random() < 0.00016 ? (Math.random() * 2 - 1) * 0.9 : 0) + (Math.random() * 2 - 1) * 0.015;
+    return buf;
+  }
+  function initAudio() {
+    if (ac) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    ac = new AC();
+    master = ac.createGain(); master.gain.value = 0;
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.ratio.value = 3;
+    master.connect(comp); comp.connect(ac.destination);
+    musicBus = ac.createGain(); musicBus.gain.value = 0.9; musicBus.connect(master);
+    sfxBus = ac.createGain(); sfxBus.gain.value = 1; sfxBus.connect(master);
+    const reverb = ac.createConvolver(); reverb.buffer = makeIR(2.8, 2.6);
+    const wet = ac.createGain(); wet.gain.value = 0.42;
+    reverbSend = ac.createGain();
+    reverbSend.connect(reverb); reverb.connect(wet); wet.connect(master);
+    noiseBuf = makeNoise(2);
+    crackleBuf = makeCrackle(3);
+    return true;
+  }
+  function route(node, bus, send = 0.3) {
+    node.connect(bus);
+    if (send > 0) { const s = ac.createGain(); s.gain.value = send; node.connect(s); s.connect(reverbSend); }
+  }
+  function noiseSrc(t, dur) {
+    const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    s.start(t, Math.random()); s.stop(t + dur + 0.02); return s;
+  }
+  function filt(type, f, q = 0.7) {
+    const b = ac.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; return b;
+  }
+
+  // ---------- NHẠC NỀN TẠO BẰNG CODE: âm sắc piano, hộp nhạc, guitar ----------
+  function bell(f, t, v, dec, bus, send = 0.5) {
+    bus = bus || musicBus;
+    [[1, 1], [2.76, 0.2], [5.4, 0.07], [8.9, 0.03]].forEach(([m, a]) => {
+      if (f * m > 16000) return;
+      const o = ac.createOscillator(), g = ac.createGain(), d = Math.max(0.12, dec / m);
+      o.type = "sine"; o.frequency.value = f * m;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0002, a * v), t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); route(g, bus, send); o.start(t); o.stop(t + d + 0.05);
+    });
+  }
+  function vBox(f, t, d, v) { bell(f, t, v, 1.9, musicBus, 0.55); }
+
+  function vPiano(f, t, d, v) {
+    const g = ac.createGain(), lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(Math.min(5000, f * 7), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(600, f * 2), t + 1.2);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(v * 0.3, t + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.1);
+    [["triangle", 1, 1], ["sine", 2, 0.35], ["sine", 3, 0.12], ["sine", 4, 0.05]].forEach(([type, m, a]) => {
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = type; o.frequency.value = f * m; o.detune.value = (Math.random() - 0.5) * 6;
+      og.gain.value = a; o.connect(og); og.connect(lp);
+      o.start(t); o.stop(t + d + 1.2);
+    });
+    lp.connect(g); route(g, musicBus, 0.35);
+  }
+
+  function vGuitar(f, t, d, v) {
+    const g = ac.createGain(), lp = ac.createBiquadFilter();
+    lp.type = "lowpass"; lp.Q.value = 1.2;
+    lp.frequency.setValueAtTime(2600, t);
+    lp.frequency.exponentialRampToValueAtTime(450, t + 0.5);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(v * 0.35, t + 0.25);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.7);
+    [["sawtooth", 1, 0.35], ["triangle", 1, 0.6], ["triangle", 2, 0.2]].forEach(([type, m, a]) => {
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = type; o.frequency.value = f * m; o.detune.value = (Math.random() - 0.5) * 10;
+      og.gain.value = a; o.connect(og); og.connect(lp);
+      o.start(t); o.stop(t + d + 0.8);
+    });
+    lp.connect(g); route(g, musicBus, 0.25);
+  }
+
+  function vPad(notes, t, d, v) {
+    notes.forEach(n => {
+      const o = ac.createOscillator(), g = ac.createGain(), lp = filt("lowpass", 900);
+      o.type = "triangle"; o.frequency.value = mtof(n);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(v, t + 1.2);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.2);
+      o.connect(lp); lp.connect(g); route(g, musicBus, 0.6);
+      o.start(t); o.stop(t + d + 1.3);
+    });
+  }
+
+  function dKick(t, v) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    o.connect(g); route(g, musicBus, 0.05); o.start(t); o.stop(t + 0.3);
+  }
+  function dSnare(t, v) {
+    const n = noiseSrc(t, 0.16), bp = filt("bandpass", 1800, 0.8), g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+    n.connect(bp); bp.connect(g); route(g, musicBus, 0.3);
+  }
+  function dHat(t, v) {
+    const n = noiseSrc(t, 0.05), hp = filt("highpass", 7000), g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+    n.connect(hp); hp.connect(g); route(g, musicBus, 0.1);
+  }
+
+  // ---------- GIAI ĐIỆU NỀN TẠO BẰNG CODE (Am7 – Fmaj7 – C – G, lặp lại) ----------
+  const CH = [
+    { b: 45, n: [57, 60, 64, 67] },  // Am7
+    { b: 41, n: [53, 57, 60, 64] },  // Fmaj7
+    { b: 48, n: [55, 60, 64, 67] },  // C
+    { b: 43, n: [55, 59, 62, 67] }   // G
+  ];
+  const ARP = [0, 1, 2, 3, 2, 3, 1, 2];
+  // [bước (nốt móc đơn), nốt MIDI, độ dài]
+  const MEL = [
+    [[0,76,3],[3,74,1],[4,72,4]],
+    [[0,69,2],[2,72,2],[4,76,4]],
+    [[0,76,2],[2,79,2],[4,76,2],[6,74,2]],
+    [[0,74,4],[4,71,2],[6,69,2]],
+    [[0,72,2],[2,76,2],[4,81,4]],
+    [[0,79,3],[3,77,1],[4,76,4]],
+    [[0,76,2],[2,74,2],[4,72,4]],
+    [[0,71,2],[2,74,2],[4,79,4]]
+  ];
+
+  function scheduleStep(t) {
+    const m = MOODS[moodIdx];
+    if (m.id === "file") return;
+    const bar = Math.floor(step / 8) % 8, s = step % 8, ch = CH[bar % 4], e = m.eighth;
+    const T = t + (m.id === "lofi" && s % 2 === 1 ? e * 0.14 : 0);   // swing nhẹ cho lofi
+    const mel = MEL[bar].filter(x => x[0] === s);
+
+    if (m.id === "piano") {
+      if (s === 0) { vPad(ch.n.slice(0, 3), T, e * 8, 0.02); vPiano(mtof(ch.b), T, e * 6, 0.11); }
+      vPiano(mtof(ch.n[ARP[s]]), T, e * 1.5, 0.045);
+      mel.forEach(([, n, l]) => vPiano(mtof(n), T, l * e, 0.1));
+    } else if (m.id === "box") {
+      if (s === 0) vPad(ch.n.slice(0, 3), T, e * 8, 0.014);
+      vBox(mtof(ch.n[ARP[s]] + 12), T, e, 0.05);
+      mel.forEach(([, n]) => vBox(mtof(n), T, e * 2, 0.1));
+    } else {
+      if (s === 0) { vPad(ch.n.slice(0, 3), T, e * 8, 0.012); vGuitar(mtof(ch.b), T, e * 3, 0.08); }
+      if (s === 0 || s === 4) ch.n.forEach((n, i) => vGuitar(mtof(n), T + i * 0.035, e * 3, s === 0 ? 0.045 : 0.032));
+      mel.forEach(([, n, l]) => vGuitar(mtof(n), T, l * e, 0.06));
+      if (s === 0 || s === 5) dKick(T, 0.22);
+      if (s === 2 || s === 6) dSnare(T, 0.07);
+      if (s % 2 === 1) dHat(T, 0.025);
+    }
+  }
+  function tick() {
+    if (!ac || !soundOn) return;
+    const e = MOODS[moodIdx].eighth;
+    while (nextTime < ac.currentTime + 1.2) { scheduleStep(nextTime); nextTime += e; step++; }
+  }
+  function startScheduler() {
+    stopScheduler();
+    nextTime = ac.currentTime + 0.08; step -= step % 8;
+    schedTimer = setInterval(tick, 100); tick();
+  }
+  function stopScheduler() { clearInterval(schedTimer); schedTimer = null; }
+
+  // Tiếng lạo xạo nền riêng cho chế độ LOFI GUITAR.
+  function startCrackle() {
+    if (crackleSrc) return;
+    const s = ac.createBufferSource(), hp = filt("highpass", 2200), g = ac.createGain();
+    s.buffer = crackleBuf; s.loop = true; g.gain.value = 0.55;
+    s.connect(hp); hp.connect(g); g.connect(musicBus); s.start(); crackleSrc = s;
+  }
+  function stopCrackle() { if (crackleSrc) { try { crackleSrc.stop(); } catch (_) {} crackleSrc = null; } }
+
+  // ---------- PHÁT NHẠC CỦA BẠN: đọc và phát file khai báo trong CUSTOM_TRACKS ----------
+  function fadeEl(el, to, ms, done) {
+    clearInterval(el._f);
+    const from = el.volume, t0 = performance.now();
+    el._f = setInterval(() => {
+      const k = Math.min(1, (performance.now() - t0) / ms);
+      el.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+      if (k >= 1) { clearInterval(el._f); if (done) done(); }
+    }, 40);
+  }
+  function playFile(src) {
+    if (!fileEl) { fileEl = new Audio(); fileEl.loop = true; fileEl.preload = "auto"; fileEl.volume = 0; }
+    if (fileEl.dataset.src !== src) { fileEl.src = src; fileEl.dataset.src = src; }
+    const p = fileEl.play(); if (p && p.catch) p.catch(() => {});
+    fadeEl(fileEl, FILE_VOL, 2500);
+  }
+  function stopFile(ms = 600) {
+    if (!fileEl) return;
+    fadeEl(fileEl, 0, ms, () => { if (!soundOn || MOODS[moodIdx].id !== "file") fileEl.pause(); });
+  }
+
+  // ---------- ĐIỀU KHIỂN BẬT/TẮT NHẠC, ĐỔI BÀI VÀ TẠM DỪNG ----------
+  function startMusic() {
+    const m = MOODS[moodIdx];
+    if (m.id === "file") { stopScheduler(); stopCrackle(); playFile(m.src); return; }
+    stopFile(); startScheduler();
+    if (m.id === "lofi") startCrackle(); else stopCrackle();
+  }
+  function updateButtons() {
+    soundBtn.textContent = soundOn ? "♫ TẮT NHẠC" : "♫ BẬT NHẠC";
+    moodBtn.textContent = "♪ " + MOODS[moodIdx].name;
+  }
+  function setSound(on) {
+    if (on && !initAudio()) { alert("Trình duyệt này chưa hỗ trợ nhạc nền."); return; }
+    if (!ac) return;
+    soundOn = on;
+    if (on && ac.state === "suspended") ac.resume();
+    const now = ac.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(master.gain.value, now);
+    master.gain.linearRampToValueAtTime(on ? MASTER_VOL : 0, now + (on ? 2.5 : 0.6));
+    if (on) startMusic();
+    else { stopScheduler(); stopCrackle(); stopFile(); }
+    updateButtons();
+  }
+  function autoSound() {
+    if (AUTO_SOUND_ON_FIRST_TAP && !userChose && !soundOn) setSound(true);
+  }
+  soundBtn.addEventListener("click", () => { userChose = true; setSound(!soundOn); });
+  moodBtn.addEventListener("click", () => {
+    userChose = true;
+    moodIdx = (moodIdx + 1) % MOODS.length; step = 0;
+    if (soundOn) startMusic(); else setSound(true);
+    updateButtons();
+  });
+  // Tạm dừng khi chuyển tab để tiết kiệm pin và không kêu khi đang ẩn.
+  document.addEventListener("visibilitychange", () => {
+    if (!ac || !soundOn) return;
+    if (document.hidden) { ac.suspend(); if (fileEl) fileEl.pause(); }
+    else { ac.resume(); if (MOODS[moodIdx].id === "file") playFile(MOODS[moodIdx].src); }
+  });
+  updateButtons();
+
+  // ---------- HIỆU ỨNG ÂM THANH TẠO BẰNG CODE (SFX khi chạm/nở thư/pháo hoa) ----------
+  function thump(t, v) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v * 0.75, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+    o.connect(g); route(g, sfxBus, 0.12); o.start(t); o.stop(t + 0.26);
+    // Thêm họa âm ngắn để nghe được trên loa điện thoại nhỏ.
+    const o2 = ac.createOscillator(), g2 = ac.createGain();
+    o2.type = "triangle"; o2.frequency.setValueAtTime(190, t); o2.frequency.exponentialRampToValueAtTime(90, t + 0.09);
+    g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(v * 0.2, t + 0.008);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    o2.connect(g2); route(g2, sfxBus, 0.1); o2.start(t); o2.stop(t + 0.14);
+  }
+  function tickNoise(t, f, v, dur, send = 0.3) {
+    const n = noiseSrc(t, dur), bp = filt("bandpass", f, 0.9), g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, v), t + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    n.connect(bp); bp.connect(g); route(g, sfxBus, send);
+  }
+
+  const sfx = {
+    // Phá con dấu: tiếng vỡ nhẹ + chuông gió lấp lánh.
+    seal() {
+      if (!ac || !soundOn) return;
+      const t = ac.currentTime + 0.01;
+      tickNoise(t, 3200, 0.3, 0.1, 0.4);
+      for (let i = 0; i < 5; i++) tickNoise(t + rnd(0.03, 0.28), rnd(2500, 6000), rnd(0.05, 0.12), 0.05, 0.4);
+      [88, 91, 95, 98, 103].forEach((n, i) => bell(mtof(n), t + 0.12 + i * 0.075, 0.1, 1.7, sfxBus, 0.7));
+    },
+    // Mở thư: giấy xột xoạt + tiếng nắp phong bì lật.
+    paper() {
+      if (!ac || !soundOn) return;
+      const t = ac.currentTime + 0.02;
+      const n = noiseSrc(t, 0.4), lp = filt("lowpass", 500), g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.06);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+      n.connect(lp); lp.connect(g); route(g, sfxBus, 0.1);
+      for (let i = 0; i < 7; i++) tickNoise(t + 0.05 + i * rnd(0.07, 0.12), rnd(3500, 7000), rnd(0.05, 0.12), rnd(0.05, 0.12), 0.15);
+    },
+    // Chạm trái tim: hai nhịp "thình-thịch" trầm ấm.
+    heart() {
+      if (!ac || !soundOn) return;
+      const t = ac.currentTime + 0.01;
+      thump(t, 1); thump(t + 0.24, 0.75);
+    },
+    // Pháo hoa xa xăm: tiếng nổ muộn, bị nén và vang, kèm tiếng lách tách.
+    firework() {
+      if (!ac || !soundOn) return;
+      const t = ac.currentTime + rnd(0.3, 0.7);
+      const n = noiseSrc(t, 1.3), lp = ac.createBiquadFilter(), g = ac.createGain();
+      lp.type = "lowpass"; lp.frequency.setValueAtTime(650, t); lp.frequency.exponentialRampToValueAtTime(150, t + 1);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+      n.connect(lp); lp.connect(g); route(g, sfxBus, 0.75);
+      const o = ac.createOscillator(), og = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(34, t + 0.4);
+      og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
+      og.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      o.connect(og); route(og, sfxBus, 0.5); o.start(t); o.stop(t + 0.55);
+      const k = Math.floor(rnd(8, 15));
+      for (let i = 0; i < k; i++) tickNoise(t + 0.2 + rnd(0, 1.1), rnd(2200, 4500), rnd(0.02, 0.05), 0.025, 0.6);
+    },
+    // Chạm vào bông hoa: một nốt chuông nhỏ.
+    tink() {
+      if (!ac || !soundOn) return;
+      const n = [79, 81, 84, 86, 88][Math.floor(Math.random() * 5)];
+      bell(mtof(n), ac.currentTime + 0.01, 0.09, 1.4, sfxBus, 0.6);
+    }
+  };
+
+  // Canvas fireworks; particles are drawn locally, without external libraries.
+  const canvas = $("canvas"), ctx = canvas.getContext("2d");
+  let fw = [], raf = null;
+  function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio||1,2);
+    canvas.width = Math.floor(innerWidth*dpr);
+    canvas.height = Math.floor(innerHeight*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener("resize",resizeCanvas);resizeCanvas();
+  function launchFireworks(rounds=1) {
+    if (!ctx) return;
+    let launched = 0;
+    const launchOne = () => {
+      if (launched >= rounds) return;
+      launched++;
+      sfx.firework();
+      const x = innerWidth*(.16+Math.random()*.68);
+      const y = innerHeight*(.15+Math.random()*.48);
+      const colors = ["#ffe5a3","#e6c786","#f4a8b8","#fff1d9","#d67a91"];
+      const color = colors[Math.floor(Math.random()*colors.length)];
+      for(let i=0;i<75;i++){
+        const a=Math.PI*2*i/75, speed=1.1+Math.random()*3.5;
+        fw.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,
+          life:55+Math.random()*35,max:90,color,size:.8+Math.random()*2});
+      }
+      setTimeout(launchOne,350+Math.random()*550);
+    };
+    launchOne();
+    if (!raf) animateFireworks();
+  }
+  function animateFireworks() {
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    fw = fw.filter(p=>p.life>0);
+    for(const p of fw){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.018;p.vx*=.992;p.vy*=.992;p.life--;
+      ctx.globalAlpha=Math.max(0,p.life/p.max);
+      ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(fw.length){raf=requestAnimationFrame(animateFireworks);}
+    else{cancelAnimationFrame(raf);raf=null;ctx.clearRect(0,0,innerWidth,innerHeight);}
+  }
+
+  // Subtle sparkle field in the background.
+  for(let i=0;i<22;i++){
+    const s=document.createElement("i");s.className="spark";
+    s.style.left=Math.random()*100+"%";s.style.top=Math.random()*100+"%";
+    s.style.animationDelay=Math.random()*3+"s";
+    s.style.animationDuration=(2+Math.random()*3)+"s";
+    $("ambient").appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
